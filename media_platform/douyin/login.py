@@ -46,6 +46,8 @@ class DouYinLogin(AbstractLogin):
             await self.login_by_mobile()
         elif self.login_type == "cookie":
             await self.login_by_cookies()
+        elif self.login_type == "none":
+            return
         else:
             raise ValueError("[DouYinLogin.begin] Invalid Login Type Currently only supported qrcode or phone or cookie ...")
 
