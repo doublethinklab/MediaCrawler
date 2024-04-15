@@ -17,7 +17,7 @@ from var import crawler_type_var
 from .client import DOUYINClient
 from .exception import DataFetchError
 from .login import DouYinLogin
-from .field import PublishTimeType
+from .field import PublishTimeType, SearchSortType
 
 
 class DouYinCrawler(AbstractCrawler):
@@ -88,10 +88,20 @@ class DouYinCrawler(AbstractCrawler):
             page = 0
             while (page + 1) * dy_limit_count <= config.CRAWLER_MAX_NOTES_COUNT:
                 try:
-                    posts_res = await self.dy_client.search_info_by_keyword(keyword=keyword,
-                                                                            offset=page * dy_limit_count,
-                                                                            publish_time=PublishTimeType.UNLIMITED
-                                                                            )
+                    posts_res = await self.dy_client.search_info_by_keyword(
+                        keyword=keyword,
+                        offset=page * dy_limit_count,
+                        publish_time=(
+                            PublishTimeType[config.PUBLISH_TIME_TYPE]
+                            if config.PUBLISH_TIME_TYPE != ''
+                            else PublishTimeType.UNLIMITED
+                        ),
+                        sort_type=(
+                            SearchSortType[config.SORT_TYPE]
+                            if config.SORT_TYPE != ''
+                            else SearchSortType.GENERAL
+                        )
+                    )
                 except DataFetchError:
                     utils.logger.error(f"[DouYinCrawler.search] search douyin keyword: {keyword} failed")
                     break
@@ -105,7 +115,7 @@ class DouYinCrawler(AbstractCrawler):
                     aweme_list.append(aweme_info.get("aweme_id", ""))
                     await douyin_store.update_douyin_aweme(aweme_item=aweme_info)
             utils.logger.info(f"[DouYinCrawler.search] keyword:{keyword}, aweme_list:{aweme_list}")
-            await self.batch_get_note_comments(aweme_list)
+            # await self.batch_get_note_comments(aweme_list)
 
     async def get_specified_awemes(self):
         """Get the information and comments of the specified post"""
