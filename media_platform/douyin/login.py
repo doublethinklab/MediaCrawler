@@ -36,6 +36,9 @@ class DouYinLogin(AbstractLogin):
             滑块中间页面的验证准确率不太OK... 如果没有特俗要求，建议不开抖音登录，或者使用cookies登录
         """
 
+        if self.login_type == "none":
+            return
+
         # popup login dialog
         await self.popup_login_dialog()
 
@@ -46,8 +49,6 @@ class DouYinLogin(AbstractLogin):
             await self.login_by_mobile()
         elif self.login_type == "cookie":
             await self.login_by_cookies()
-        elif self.login_type == "none":
-            return
         else:
             raise ValueError("[DouYinLogin.begin] Invalid Login Type Currently only supported qrcode or phone or cookie ...")
 
