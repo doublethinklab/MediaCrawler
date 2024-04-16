@@ -3,7 +3,8 @@ PLATFORM = "xhs"
 KEYWORDS = "python,golang"
 LOGIN_TYPE = "qrcode"  # qrcode or phone or cookie
 COOKIES = ""
-SORT_TYPE="popularity_descending" # 具体值参见media_platform.xxx.field下的枚举值，展示只支持小红书
+SORT_TYPE=""
+PUBLISH_TIME_TYPE="ONE_WEEK"
 CRAWLER_TYPE = "search"
 
 # 是否开启 IP 代理
