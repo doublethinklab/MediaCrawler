@@ -196,3 +196,34 @@ class DOUYINClient:
                 continue
             # todo fetch sub comments
         return result
+
+    async def get_user_post(
+            self,
+            sec_user_id: str,
+            max_cursor: str = '0'
+    ) -> Any:
+        """
+        DouYin User Post API
+        :param sec_user_id:
+        :param max_cursor:
+        :return:
+        """
+        params = {
+            "sec_user_id": sec_user_id,
+            'max_cursor': max_cursor,  # 'max_cursor' of last response
+            # 'locate_item_id' is unclear
+            'locate_query': 'false',
+            'show_live_replay_strategy': '1',
+            'need_time_list': '1',
+            'time_list_query': '0',
+            'cut_version': '1',
+            'count': '18',
+            'publish_video_strategy_type': '2',
+        }
+
+        headers = copy.copy(self.headers)
+        del headers["Origin"]
+        referer_url = f'https://www.douyin.com/user/{sec_user_id}'
+        headers = copy.copy(self.headers)
+        headers["Referer"] = urllib.parse.quote(referer_url, safe=':/')
+        return await self.get("/aweme/v1/web/aweme/post/", params, headers)

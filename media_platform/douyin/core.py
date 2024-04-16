@@ -76,6 +76,8 @@ class DouYinCrawler(AbstractCrawler):
             elif self.crawler_type == "detail":
                 # Get the information and comments of the specified post
                 await self.get_specified_awemes()
+            elif self.crawler_type == "creator":
+                await self.get_user_post()
 
             utils.logger.info("[DouYinCrawler.start] Douyin Crawler finished ...")
 
@@ -116,6 +118,27 @@ class DouYinCrawler(AbstractCrawler):
                     await douyin_store.update_douyin_aweme(aweme_item=aweme_info)
             utils.logger.info(f"[DouYinCrawler.search] keyword:{keyword}, aweme_list:{aweme_list}")
             # await self.batch_get_note_comments(aweme_list)
+
+    async def get_user_post(self):
+        next_max_cursor = '0'
+        for sec_user_id in config.SEC_USER_IDS:
+            aweme_list: List[dict] = []
+            while len(aweme_list) <= config.CRAWLER_MAX_NOTES_COUNT:
+                try:
+                    posts_res = await self.dy_client.get_user_post(sec_user_id, next_max_cursor)
+                except DataFetchError:
+                    utils.logger.error(f"[DouYinCrawler.user] Get posts from user id: {sec_user_id} failed")
+                    break
+                aweme_list += posts_res.get('aweme_list')
+                next_max_cursor = posts_res.get('max_cursor')
+                for aweme_info in aweme_list:
+                    await douyin_store.update_douyin_aweme(aweme_item=aweme_info)
+                has_more = posts_res.get('has_more')
+                print(has_more)
+                if has_more != 1:
+                    break
+            print([x['aweme_id'] for x in aweme_list])
+
 
     async def get_specified_awemes(self):
         """Get the information and comments of the specified post"""
